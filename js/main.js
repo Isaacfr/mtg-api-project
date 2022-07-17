@@ -1,43 +1,20 @@
-document.querySelector('#search-button').addEventListener('click', getFetch);
+document.querySelector('#search-button').addEventListener('click', findCard);
 document.querySelector('#compare-button').addEventListener('click', compareLists);
 
-function getFetch(){
+function findCard(){
     const searchItem = document.querySelector('#search-bar').value;
-    // const url = `https://api.scryfall.com/cards/named?exact=${searchItem}`;
-    const url = `https://api.scryfall.com/cards/named?fuzzy=${searchItem}`;
-    // console.log(searchItem);
+    getFetch(searchItem);
+}
+
+function getFetch(item){
+    const url = `https://api.scryfall.com/cards/named?fuzzy=${item}`;
     let searchQueryItems = [];
 
     fetch(url)
     .then(res => res.json())
     .then(data =>{
         searchQueryItems.push(data);
-        // console.log(searchQueryItems);
-
-        // var newText = document.createTextNode('new row');
-        // xList_newCell.appendChild(newText);
-
-        // console.log(searchQueryItems[0].name);
-        // console.log(searchQueryItems[0].type_line);
-        // console.log(searchQueryItems[0].colors);
-        // console.log(searchQueryItems[0].cmc);
-        // console.log(searchQueryItems[0].rarity);
-
         loadTable(searchQueryItems[0], 'x-body');
-
-        // fetch(searchQueryItems[0].prints_search_uri)
-        // .then(res => res.json())
-        // .then(data =>{
-        //     setNames.push(data.data);
-        //     console.log(setNames);
-        //     setNames[0].forEach(el =>{
-        //         console.log(el.set_name);
-        //         console.log(el.prices.usd);
-        //     })
-        // })
-        // .catch(err =>{
-        //     console.log(`error ${err}`)
-        // });
     })
     .catch(err =>{
         console.log(`error ${err}`)
@@ -55,7 +32,14 @@ function loadTable(items, listRef){
     type.innerHTML = items.type_line;
 
     let colors = newRow.insertCell(2);
-    colors.innerHTML = items.colors;
+    if(items.colors.length == 0)
+    {
+        colors.innerHTML = 'colorless';
+    }
+    else
+    {
+        colors.innerHTML = items.colors;
+    }
 
     let cmc = newRow.insertCell(3);
     cmc.innerHTML = items.cmc;
@@ -63,12 +47,26 @@ function loadTable(items, listRef){
     let rarity = newRow.insertCell(4);
     rarity.innerHTML = items.rarity;
 
-    let sets = newRow.insertCell(5);    
+    let sets = newRow.insertCell(5);
+    let btn = document.createElement("button");
+    btn.innerHTML = 'Sets/Prices';
+    btn.className = 'collapsible';
+    btn.addEventListener('click', function(){
+        this.classList.toggle('active');
+        let content = this.nextElementSibling;
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        } else {
+        content.style.display = "block";
+        }
+    });    
     let setNames = [];
 
     let setTable = document.createElement('table');
+    setTable.className = 'table-content';
     let setBody = document.createElement('tbody');
 
+    sets.appendChild(btn);
     sets.appendChild(setTable);
     setTable.appendChild(setBody);
 
@@ -77,13 +75,14 @@ function loadTable(items, listRef){
         .then(data =>{
             setNames.push(data.data);
             console.log(setNames);
+            setNames[0].sort((a,b) => {
+                a = a.prices.usd;
+                b = b.prices.usd;
+                return a - b;
+            })
             setNames[0].forEach(el =>{
                 if(el.prices.usd != null)
                 {
-
-                
-                console.log(el.set_name);
-                console.log(el.prices.usd);
                             
                 let setRow = setBody.insertRow();
                 let nameOfSet = setRow.insertCell(0);
@@ -108,14 +107,8 @@ function compareLists(){
     const list2 = document.querySelector('#text-of-deck-2').value;
     const updatedList2 = list2.split(/\n|\t/).filter(item => item != '\t' || item == '');
 
-    console.log(updatedList1 , updatedList2);
-
     const x_list = updatedList1.filter(item => !updatedList2.includes(item));
     const add_list = updatedList2.filter(item => !updatedList1.includes(item));
-
-    console.log(x_list);
-    console.log(add_list);
-
     
     x_list.forEach(el => {
         const node = document.createElement('li');
@@ -123,16 +116,13 @@ function compareLists(){
         node.appendChild(textNode);
         document.getElementById('x-list').appendChild(node);
     });
+
     add_list.forEach(el => {
         const node = document.createElement('li');
         const textNode = document.createTextNode(el);
         node.appendChild(textNode);
         document.getElementById('add-list').appendChild(node);
     });
-
-}
-
-function simplifyList(listOfItems){
 
 }
 
