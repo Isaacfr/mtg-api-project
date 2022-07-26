@@ -1,30 +1,41 @@
 document.querySelector('#search-button').addEventListener('click', findCard);
 document.querySelector('#compare-button').addEventListener('click', compareLists);
 
+
+//find card from the search button with button press
 function findCard(){
     const searchItem = document.querySelector('#search-bar').value;
-    getFetch(searchItem);
+    getFetch(searchItem, 'x-body');
 }
 
-function getFetch(item){
+//input the item and which list to put it in
+//use async, await to load all items simultaneously
+async function getFetch(item, listRef){
     const url = `https://api.scryfall.com/cards/named?fuzzy=${item}`;
     let searchQueryItems = [];
 
-    fetch(url)
-    .then(res => res.json())
-    .then(data =>{
-        searchQueryItems.push(data);
-        loadTable(searchQueryItems[0], 'x-body');
-    })
-    .catch(err =>{
-        console.log(`error ${err}`)
-    });
+    const res = await fetch(url);
+    const data = await res.json();
+    searchQueryItems.push(data);
+    loadTable(searchQueryItems[0], listRef);
+
+    // .then(res => res.json())
+    // .then(data =>{
+    //     searchQueryItems.push(data);
+    //     loadTable(searchQueryItems[0], listRef);
+    // })
+    // .catch(err =>{
+    //     console.log(`error ${err}`);
+    //     console.log(item);
+    // });
 }
 
+//loads table with list of items
 function loadTable(items, listRef){
     let tbodyRef = document.getElementById(listRef);
     let newRow = tbodyRef.insertRow();
 
+    //orders tables with different such as name, type,  colors, cmc, rarity and then sets
     let name = newRow.insertCell(0);
     name.innerHTML = items.name;
 
@@ -47,6 +58,7 @@ function loadTable(items, listRef){
     let rarity = newRow.insertCell(4);
     rarity.innerHTML = items.rarity;
 
+    //minimize the table for space for the amount of sets there are; changes the space box into a button
     let sets = newRow.insertCell(5);
     let btn = document.createElement("button");
     btn.innerHTML = 'Sets/Prices';
@@ -70,6 +82,7 @@ function loadTable(items, listRef){
     sets.appendChild(setTable);
     setTable.appendChild(setBody);
 
+    //fetches each set onto the table
     fetch(items.prints_search_uri)
         .then(res => res.json())
         .then(data =>{
@@ -100,6 +113,11 @@ function loadTable(items, listRef){
 
 }
 
+//filters what is in each list that is not in the other
+/*
+    need to revise the look of the list to differentiate the two
+*/
+
 function compareLists(){
     const list1 = document.querySelector('#text-of-deck-1').value;
     const updatedList1 = list1.split(/\n|\t/).filter(item => item != '\t' || item == '');
@@ -111,17 +129,20 @@ function compareLists(){
     const add_list = updatedList2.filter(item => !updatedList1.includes(item));
     
     x_list.forEach(el => {
-        const node = document.createElement('li');
-        const textNode = document.createTextNode(el);
-        node.appendChild(textNode);
-        document.getElementById('x-list').appendChild(node);
+        // const node = document.createElement('li');
+        // const textNode = document.createTextNode(el);
+        // node.appendChild(textNode);
+        // document.getElementById('x-list').appendChild(node);
+        getFetch(el, 'x-body');
     });
 
     add_list.forEach(el => {
-        const node = document.createElement('li');
-        const textNode = document.createTextNode(el);
-        node.appendChild(textNode);
-        document.getElementById('add-list').appendChild(node);
+        // const node = document.createElement('li');
+        // const textNode = document.createTextNode(el);
+        // node.appendChild(textNode);
+        // document.getElementById('add-list').appendChild(node);
+
+        getFetch(el, 'add-body');
     });
 
 }
