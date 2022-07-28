@@ -22,15 +22,6 @@ async function getFetch(item, listRef){
     const data = await res.json();
     searchQueryItems.push(data);
     loadTable(searchQueryItems[0], listRef);
-    // .then(res => res.json())
-    // .then(data =>{
-    //     searchQueryItems.push(data);
-    //     loadTable(searchQueryItems[0], listRef);
-    // })
-    // .catch(err =>{
-    //     console.log(`error ${err}`);
-    //     console.log(item);
-    // });
 }
 
 //loads table with list of items
@@ -45,10 +36,6 @@ async function loadTable(items, listRef){
     let img = newRow.insertCell(0);
     let newImg = document.createElement('img');
     newImg.src = items.image_uris.small;
-    // const img_res_url = await fetch(items.image_uris.small);
-    // const img_data = await img_res_url.json();
-    // newImg.src = img_data.data;
-    // newImg.src = img_data.push(data);
     img.appendChild(newImg);
 
     if(items.name === "Plains" || items.name === "Mountain" || items.name === "Forest" || items.name === "Swamp" || items.name === 'Island'){
@@ -73,7 +60,6 @@ async function loadTable(items, listRef){
     
     if(items.colors.length == 0)
     {
-        // colors.innerHTML = '{C}';
         let newElement = document.createElement('a');
         newElement.className = 'ms ms-c';
         symbols.appendChild(newElement);
@@ -85,8 +71,6 @@ async function loadTable(items, listRef){
             if(color == 'R'){
                 newElement.className = 'ms ms-r';
                 symbols.appendChild(newElement);
-                // symbols.classList.add('ms');
-                // symbols.classList.add('ms-r');
 
             }
             else if(color == "U"){
@@ -208,33 +192,6 @@ async function loadTable(items, listRef){
         cardSetPrice.innerHTML = el.prices.usd;
         }
     })
-        // .then(res => res.json())
-        // .then(data =>{
-        //     setNames.push(data.data);
-        //     console.log(setNames);
-        //     setNames[0].sort((a,b) => {
-        //         a = a.prices.usd;
-        //         b = b.prices.usd;
-        //         return a - b;
-        //     })
-        //     setNames[0].forEach(el =>{
-        //         if(el.prices.usd != null)
-        //         {
-                            
-        //         let setRow = setBody.insertRow();
-        //         let nameOfSet = setRow.insertCell(0);
-        //         let cardSetPrice = setRow.insertCell(1);
-        //         setBody.appendChild(setRow);
-
-        //         nameOfSet.innerHTML = el.set_name;
-        //         cardSetPrice.innerHTML = el.prices.usd;
-        //         }
-        //     })
-        // })
-        // .catch(err =>{
-        //     console.log(`error ${err}`)
-        // });
-
 }
 
 //filters what is in each list that is not in the other
@@ -255,19 +212,10 @@ function compareLists(){
     const add_list = updatedList2.filter(item => !updatedList1.includes(item));
     
     x_list.forEach(el => {
-        // const node = document.createElement('li');
-        // const textNode = document.createTextNode(el);
-        // node.appendChild(textNode);
-        // document.getElementById('x-list').appendChild(node);
         getFetch(el, 'x-body');
     });
 
     add_list.forEach(el => {
-        // const node = document.createElement('li');
-        // const textNode = document.createTextNode(el);
-        // node.appendChild(textNode);
-        // document.getElementById('add-list').appendChild(node);
-
         getFetch(el, 'add-body');
     });
 
