@@ -1,3 +1,4 @@
+
 document.querySelector('#search-button').addEventListener('click', findCard);
 document.querySelector('#compare-button').addEventListener('click', compareLists);
 
@@ -12,6 +13,7 @@ function findCard(){
 //use async, await to load all items simultaneously
 async function getFetch(item, listRef){
 
+    try{
     const url = `https://api.scryfall.com/cards/named?fuzzy=${item}`;
     let searchQueryItems = [];
 
@@ -20,8 +22,14 @@ async function getFetch(item, listRef){
     }
     const res = await fetch(url);
     const data = await res.json();
+    console.log(data);
     searchQueryItems.push(data);
     loadTable(searchQueryItems[0], listRef);
+    }
+    catch{
+        const url = `https://api.scryfall.com/cards/named?exact=${item}`;
+        console.log(item);
+    }
 }
 
 //loads table with list of items
@@ -34,9 +42,14 @@ async function loadTable(items, listRef){
     let newRow = tbodyRef.insertRow();
 
     let img = newRow.insertCell(0);
+    //For appearance
     let newImg = document.createElement('img');
     newImg.src = items.image_uris.small;
     img.appendChild(newImg);
+    //For functionality
+    // let imgTxt = document.createElement('a');
+    // imgTxt.innerHTML = `=IMAGE("${items.image_uris.large}")`;
+    // img.appendChild(imgTxt);
 
     if(items.name === "Plains" || items.name === "Mountain" || items.name === "Forest" || items.name === "Swamp" || items.name === 'Island'){
         return null;
@@ -56,6 +69,17 @@ async function loadTable(items, listRef){
         colorID="add-color";
     }
 
+    //for functionality
+    let colors = newRow.insertCell(3);
+    // if(items.colors.length == 0)
+    // {
+    //     colors.innerHTML = 'colorless';
+    // }
+    // else
+    // {
+    //     colors.innerHTML = items.colors;
+    // }
+    //for appearance
     let symbols = newRow.insertCell(3);
     
     if(items.colors.length == 0)
@@ -143,7 +167,7 @@ async function loadTable(items, listRef){
     //         return x;
     //     }
     // });
-    console.log(string);
+    // console.log(string);
     desc.innerHTML += string.join(' ');
 
     //minimize the table for space for the amount of sets there are; changes the space box into a button
@@ -227,7 +251,7 @@ function exportTableToExcel(tableID, filename = ''){
     var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
     
     // Specify file name
-    filename = filename?filename+'.xlsx':'excel_data.xlsx';
+    filename = filename?filename+'.xls':`newFile.xls`;
     
     // Create download link element
     downloadLink = document.createElement("a");
@@ -235,7 +259,7 @@ function exportTableToExcel(tableID, filename = ''){
     document.body.appendChild(downloadLink);
     
     if(navigator.msSaveOrOpenBlob){
-        creates a blob instance that starts with the unicode character responding to the hex feff, and then folllows with the contents of the tableHTML variable
+        //creates a blob instance that starts with the unicode character responding to the hex feff, and then folllows with the contents of the tableHTML variable
         var blob = new Blob(['\ufeff', tableHTML], {
             type: dataType
         });
